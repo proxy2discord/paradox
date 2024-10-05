@@ -14,6 +14,8 @@ end
 
 local player = game.Players.LocalPlayer
 local character = player.Character or player.CharacterAdded:Wait()
+
+-- Assurez-vous que le "Humanoid" est présent avant de l'utiliser
 local humanoid = character:WaitForChild("Humanoid")
 
 -- Variables pour la gestion de la vitesse

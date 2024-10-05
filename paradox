@@ -19,61 +19,82 @@ local humanoid = character:WaitForChild("Humanoid")
 -- Variables pour la gestion de la vitesse
 local walkspeedEnabled = false
 local walkspeed = 16  -- Vitesse par défaut
+local speedStep = 1  -- Incrément de la vitesse lors de l'utilisation du slider
+local maxSpeed = 100  -- Vitesse maximale
 
--- Création de l'UI
+-- Création de l'UI pour les joueurs PC
 local screenGui = Instance.new("ScreenGui")
 local frame = Instance.new("Frame")
 local toggleButton = Instance.new("TextButton")
 local checkBox = Instance.new("TextButton")
 local speedSlider = Instance.new("TextBox")
+local speedLabel = Instance.new("TextLabel")
 
 -- Propriétés du ScreenGui
 screenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
 
--- Propriétés du cadre principal
-frame.Size = UDim2.new(0, 200, 0, 150)
-frame.Position = UDim2.new(0.5, -100, 0.5, -75)
+-- Propriétés du cadre principal (adapté pour une utilisation sur PC)
+frame.Size = UDim2.new(0, 300, 0, 200)
+frame.Position = UDim2.new(0.5, -150, 0.5, -100)
+frame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
 frame.Parent = screenGui
 
 -- Propriétés du bouton pour activer/désactiver la vitesse
-toggleButton.Size = UDim2.new(0, 180, 0, 50)
+toggleButton.Size = UDim2.new(0, 280, 0, 50)
 toggleButton.Position = UDim2.new(0, 10, 0, 10)
-toggleButton.Text = "Activer WalkSpeed"
+toggleButton.Text = "Activer WalkSpeed (F)"
+toggleButton.BackgroundColor3 = Color3.fromRGB(0, 170, 255)
+toggleButton.TextColor3 = Color3.fromRGB(255, 255, 255)
 toggleButton.Parent = frame
 
 -- Propriétés de la case à cocher (TextButton agissant comme une case)
-checkBox.Size = UDim2.new(0, 180, 0, 50)
+checkBox.Size = UDim2.new(0, 280, 0, 50)
 checkBox.Position = UDim2.new(0, 10, 0, 70)
 checkBox.Text = "Décoché (Vitesse désactivée)"
+checkBox.BackgroundColor3 = Color3.fromRGB(170, 0, 0)
+checkBox.TextColor3 = Color3.fromRGB(255, 255, 255)
 checkBox.Parent = frame
 
 -- Propriétés du slider (simulé par une TextBox)
 speedSlider.Size = UDim2.new(0, 180, 0, 30)
 speedSlider.Position = UDim2.new(0, 10, 0, 130)
-speedSlider.Text = "Vitesse : 16"
+speedSlider.Text = tostring(walkspeed)
+speedSlider.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+speedSlider.TextColor3 = Color3.fromRGB(0, 0, 0)
 speedSlider.Parent = frame
+
+-- Étiquette pour le slider
+speedLabel.Size = UDim2.new(0, 80, 0, 30)
+speedLabel.Position = UDim2.new(0, 200, 0, 130)
+speedLabel.Text = "Vitesse : " .. walkspeed
+speedLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+speedLabel.BackgroundTransparency = 1
+speedLabel.Parent = frame
 
 -- Fonction pour activer/désactiver la modification de la vitesse avec le bouton
 toggleButton.MouseButton1Click:Connect(function()
     walkspeedEnabled = not walkspeedEnabled
     if walkspeedEnabled then
-        toggleButton.Text = "Désactiver WalkSpeed"
+        toggleButton.Text = "Désactiver WalkSpeed (F)"
+        toggleButton.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
         humanoid.WalkSpeed = walkspeed  -- Appliquer la vitesse actuelle
     else
-        toggleButton.Text = "Activer WalkSpeed"
+        toggleButton.Text = "Activer WalkSpeed (F)"
+        toggleButton.BackgroundColor3 = Color3.fromRGB(0, 170, 255)
         humanoid.WalkSpeed = 16  -- Vitesse par défaut
     end
 end)
 
 -- Fonction pour cocher/décocher la case à cocher
 checkBox.MouseButton1Click:Connect(function()
-    if checkBox.Text == "Décoché (Vitesse désactivée)" then
+    walkspeedEnabled = not walkspeedEnabled
+    if walkspeedEnabled then
         checkBox.Text = "Coché (Vitesse activée)"
-        walkspeedEnabled = true
+        checkBox.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
         humanoid.WalkSpeed = walkspeed
     else
         checkBox.Text = "Décoché (Vitesse désactivée)"
-        walkspeedEnabled = false
+        checkBox.BackgroundColor3 = Color3.fromRGB(170, 0, 0)
         humanoid.WalkSpeed = 16  -- Vitesse par défaut
     end
 end)
@@ -82,14 +103,30 @@ end)
 speedSlider.FocusLost:Connect(function(enterPressed)
     if enterPressed then
         local newSpeed = tonumber(speedSlider.Text)
-        if newSpeed and newSpeed >= 0 and newSpeed <= 100 then
+        if newSpeed and newSpeed >= 0 and newSpeed <= maxSpeed then
             walkspeed = newSpeed
-            speedSlider.Text = "Vitesse : " .. walkspeed
+            speedLabel.Text = "Vitesse : " .. walkspeed
             if walkspeedEnabled then
                 humanoid.WalkSpeed = walkspeed  -- Appliquer la nouvelle vitesse si activée
             end
         else
-            speedSlider.Text = "Valeur invalide"  -- Si la vitesse entrée n'est pas correcte
+            speedSlider.Text = tostring(walkspeed)  -- Remettre à la valeur précédente si l'entrée est invalide
+        end
+    end
+end)
+
+-- Activer/désactiver la vitesse avec la touche "F"
+game:GetService("UserInputService").InputBegan:Connect(function(input)
+    if input.KeyCode == Enum.KeyCode.F then
+        walkspeedEnabled = not walkspeedEnabled
+        if walkspeedEnabled then
+            toggleButton.Text = "Désactiver WalkSpeed (F)"
+            toggleButton.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
+            humanoid.WalkSpeed = walkspeed
+        else
+            toggleButton.Text = "Activer WalkSpeed (F)"
+            toggleButton.BackgroundColor3 = Color3.fromRGB(0, 170, 255)
+            humanoid.WalkSpeed = 16  -- Vitesse par défaut
         end
     end
 end)

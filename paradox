@@ -1,0 +1,95 @@
+-- Liste des jeux où le script est exécutable
+local allowedGameIds = {
+    9870517705, -- Exemple : Paradox
+    -- Ajoutez ici d'autres IDs de jeux si nécessaire
+}
+
+-- Vérifier si l'ID du jeu actuel est autorisé
+if not table.find(allowedGameIds, game.PlaceId) then
+    warn("Ce script n'est pas exécutable dans ce jeu.")
+    return  -- Arrêter l'exécution du script si le jeu n'est pas autorisé
+end
+
+-- Si l'ID du jeu est autorisé, le reste du script continue ici
+
+local player = game.Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+local humanoid = character:WaitForChild("Humanoid")
+
+-- Variables pour la gestion de la vitesse
+local walkspeedEnabled = false
+local walkspeed = 16  -- Vitesse par défaut
+
+-- Création de l'UI
+local screenGui = Instance.new("ScreenGui")
+local frame = Instance.new("Frame")
+local toggleButton = Instance.new("TextButton")
+local checkBox = Instance.new("TextButton")
+local speedSlider = Instance.new("TextBox")
+
+-- Propriétés du ScreenGui
+screenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+
+-- Propriétés du cadre principal
+frame.Size = UDim2.new(0, 200, 0, 150)
+frame.Position = UDim2.new(0.5, -100, 0.5, -75)
+frame.Parent = screenGui
+
+-- Propriétés du bouton pour activer/désactiver la vitesse
+toggleButton.Size = UDim2.new(0, 180, 0, 50)
+toggleButton.Position = UDim2.new(0, 10, 0, 10)
+toggleButton.Text = "Activer WalkSpeed"
+toggleButton.Parent = frame
+
+-- Propriétés de la case à cocher (TextButton agissant comme une case)
+checkBox.Size = UDim2.new(0, 180, 0, 50)
+checkBox.Position = UDim2.new(0, 10, 0, 70)
+checkBox.Text = "Décoché (Vitesse désactivée)"
+checkBox.Parent = frame
+
+-- Propriétés du slider (simulé par une TextBox)
+speedSlider.Size = UDim2.new(0, 180, 0, 30)
+speedSlider.Position = UDim2.new(0, 10, 0, 130)
+speedSlider.Text = "Vitesse : 16"
+speedSlider.Parent = frame
+
+-- Fonction pour activer/désactiver la modification de la vitesse avec le bouton
+toggleButton.MouseButton1Click:Connect(function()
+    walkspeedEnabled = not walkspeedEnabled
+    if walkspeedEnabled then
+        toggleButton.Text = "Désactiver WalkSpeed"
+        humanoid.WalkSpeed = walkspeed  -- Appliquer la vitesse actuelle
+    else
+        toggleButton.Text = "Activer WalkSpeed"
+        humanoid.WalkSpeed = 16  -- Vitesse par défaut
+    end
+end)
+
+-- Fonction pour cocher/décocher la case à cocher
+checkBox.MouseButton1Click:Connect(function()
+    if checkBox.Text == "Décoché (Vitesse désactivée)" then
+        checkBox.Text = "Coché (Vitesse activée)"
+        walkspeedEnabled = true
+        humanoid.WalkSpeed = walkspeed
+    else
+        checkBox.Text = "Décoché (Vitesse désactivée)"
+        walkspeedEnabled = false
+        humanoid.WalkSpeed = 16  -- Vitesse par défaut
+    end
+end)
+
+-- Fonction pour ajuster la vitesse avec la TextBox (simulant un slider)
+speedSlider.FocusLost:Connect(function(enterPressed)
+    if enterPressed then
+        local newSpeed = tonumber(speedSlider.Text)
+        if newSpeed and newSpeed >= 0 and newSpeed <= 100 then
+            walkspeed = newSpeed
+            speedSlider.Text = "Vitesse : " .. walkspeed
+            if walkspeedEnabled then
+                humanoid.WalkSpeed = walkspeed  -- Appliquer la nouvelle vitesse si activée
+            end
+        else
+            speedSlider.Text = "Valeur invalide"  -- Si la vitesse entrée n'est pas correcte
+        end
+    end
+end)

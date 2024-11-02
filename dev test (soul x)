@@ -1,5 +1,11 @@
 local screenGui = script.Parent
-local antiAfkToggle = screenGui:WaitForChild("Frame"):WaitForChild("AntiAfkToggle")
+local frame = screenGui:FindFirstChild("Frame")
+local antiAfkToggle = frame and frame:FindFirstChild("AntiAfkToggle")
+
+if not antiAfkToggle then
+    warn("AntiAfkToggle n'a pas été trouvé dans Frame.")
+    return
+end
 
 local antiAfkEnabled = false
 
@@ -9,14 +15,17 @@ local function toggleAntiAfk()
 end
 
 local function antiAfkLoop()
+    local virtualUser = game:GetService("VirtualUser")
+    if not virtualUser then
+        warn("VirtualUser service introuvable.")
+        return
+    end
+
     while true do
         if antiAfkEnabled then
-            local virtualUser = game:GetService("VirtualUser")
-            if virtualUser then
-                virtualUser:Button2Down(Vector2.new(0, 0), workspace.CurrentCamera.CFrame)
-                wait(1)
-                virtualUser:Button2Up(Vector2.new(0, 0), workspace.CurrentCamera.CFrame)
-            end
+            virtualUser:Button2Down(Vector2.new(0, 0), workspace.CurrentCamera.CFrame)
+            wait(1)
+            virtualUser:Button2Up(Vector2.new(0, 0), workspace.CurrentCamera.CFrame)
         end
         wait(900)
     end

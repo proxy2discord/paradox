@@ -15,9 +15,9 @@ local function toggleAntiAfk()
 end
 
 local function antiAfkLoop()
-    local virtualUser = game:GetService("VirtualUser")
-    if not virtualUser then
-        warn("VirtualUser service introuvable.")
+    local success, virtualUser = pcall(function() return game:GetService("VirtualUser") end)
+    if not success or not virtualUser then
+        warn("Service VirtualUser introuvable.")
         return
     end
 

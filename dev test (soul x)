@@ -1,9 +1,13 @@
 local screenGui = script.Parent
 local frame = screenGui:FindFirstChild("Frame")
-local antiAfkToggle = frame and frame:FindFirstChild("AntiAfkToggle")
+if not frame then
+    warn("Frame introuvable dans ScreenGui.")
+    return
+end
 
+local antiAfkToggle = frame:FindFirstChild("AntiAfkToggle")
 if not antiAfkToggle then
-    warn("AntiAfkToggle n'a pas été trouvé dans Frame.")
+    warn("AntiAfkToggle introuvable dans Frame.")
     return
 end
 
@@ -15,8 +19,8 @@ local function toggleAntiAfk()
 end
 
 local function antiAfkLoop()
-    local success, virtualUser = pcall(function() return game:GetService("VirtualUser") end)
-    if not success or not virtualUser then
+    local virtualUser = game:GetService("VirtualUser")
+    if not virtualUser then
         warn("Service VirtualUser introuvable.")
         return
     end
@@ -32,4 +36,4 @@ local function antiAfkLoop()
 end
 
 antiAfkToggle.MouseButton1Click:Connect(toggleAntiAfk)
-spawn(antiAfkLoop)
+task.spawn(antiAfkLoop)

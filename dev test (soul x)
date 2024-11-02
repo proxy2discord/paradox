@@ -1,30 +1,26 @@
--- Références aux éléments de l'interface utilisateur
 local screenGui = script.Parent
-local antiAfkToggle = screenGui:WaitForChild("Frame"):WaitForChild("AntiAfkToggle") -- Nom du bouton ou case pour l'option anti-AFK
+local antiAfkToggle = screenGui:WaitForChild("Frame"):WaitForChild("AntiAfkToggle")
 
--- Variable pour suivre l'état de l'option anti-AFK
 local antiAfkEnabled = false
 
--- Fonction pour activer/désactiver le mode anti-AFK
 local function toggleAntiAfk()
     antiAfkEnabled = not antiAfkEnabled
     antiAfkToggle.Text = antiAfkEnabled and "Anti-AFK : Activé" or "Anti-AFK : Désactivé"
 end
 
--- Simuler un clic toutes les 15 minutes si anti-AFK est activé
 local function antiAfkLoop()
     while true do
         if antiAfkEnabled then
-            game:GetService("VirtualUser"):Button2Down(Vector2.new(0,0), workspace.CurrentCamera.CFrame) -- Simule un clic
-            wait(1)
-            game:GetService("VirtualUser"):Button2Up(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
+            local virtualUser = game:GetService("VirtualUser")
+            if virtualUser then
+                virtualUser:Button2Down(Vector2.new(0, 0), workspace.CurrentCamera.CFrame)
+                wait(1)
+                virtualUser:Button2Up(Vector2.new(0, 0), workspace.CurrentCamera.CFrame)
+            end
         end
-        wait(900) -- 900 secondes = 15 minutes
+        wait(900)
     end
 end
 
--- Connecter le bouton ou la case à la fonction toggleAntiAfk
 antiAfkToggle.MouseButton1Click:Connect(toggleAntiAfk)
-
--- Démarrer la boucle anti-AFK
 spawn(antiAfkLoop)
